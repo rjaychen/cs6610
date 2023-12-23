@@ -95,15 +95,19 @@ int main(void)
     glDeleteShader(fragmentShader);
 
     float vertices[] = {
-        -0.5f, -0.5f,
-         0.0f,  0.5f,
-         0.5f, -0.5f,
+        -0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f, 
+         0.5f, -0.5f, 0.0f
     };
 
-    unsigned int VBO;
-    glGenBuffers(1, &VBO); // Pass address of buffer
+    unsigned int VBO, VAO;
+    glGenVertexArrays(1, &VAO); // Vertex Array Object
+    glGenBuffers(1, &VBO); // Vertex Buffer
+    glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // Select vertex buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Pass data to buffer
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // Stride = 12 bytes, 0 offset.
+    glEnableVertexAttribArray(0);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -116,13 +120,19 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* Draw a triangle */
-        
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         /* Swap front and back buffers, poll IO events */
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shaderProgram);
+
     glfwTerminate();
     return 0;
 }
